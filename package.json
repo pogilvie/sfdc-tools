@@ -1,6 +1,8 @@
-{ 
-    "version": "0.0.1",
-    "dependencies": { 
-        "commander": "^12.0.0" 
-    } 
+{
+  "version": "0.0.1",
+  "dependencies": {
+    "@types/bun": "^1.0.8",
+    "@types/node": "^20.11.28",
+    "commander": "^12.0.0"
+  }
 }
