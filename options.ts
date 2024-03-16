@@ -8,13 +8,22 @@ program
     .name('sfdc-limits')
     .description('Poll Salesforce org limits')
     .option('-t, --polling-time <number>', 'polling-frequency (default 0 seconds to run and quit')
+    .option('-v, --verbose', 'turn on verbose printing for debugging')
     .version(nodePackage.version);
     
 
 program.parse();
 
 const opts = program.opts();
-export const options = {}
+
+export type Options = {
+    pollingTime: number;
+    verbose: boolean;
+}
+export const options: Options = {
+    pollingTime: 0,
+    verbose: false
+}
 
 for (let o in opts) {
     if (o == 'pollingTime') {
@@ -25,5 +34,12 @@ for (let o in opts) {
             console.log(`polling time much be a number: ${opts[o]}`);
             process.exit(1);
         }
+    } else if (o == 'verbose') {
+        options.verbose = true;
     }
+
+}
+
+export function debug(input: any) {
+    if (options.verbose) console.log(input);
 }

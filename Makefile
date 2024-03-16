@@ -2,8 +2,7 @@
 target = peter
 
 run:
-	bun main.ts --version
-	bun main.ts --help
+	bun main.ts 
 
 creds:
 	sf org display -o $(target) --json > creds.json
