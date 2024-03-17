@@ -12,6 +12,7 @@ interface ResourceUsage {
     max: number;
     remaining: number;
     used: number;
+    percent: string
 }
 
 // Create a table
@@ -24,7 +25,7 @@ let table = grid.set(0, 0, 12, 12, contrib.table, {
     height: '100%',
     border: { type: 'line', fg: 'cyan' },
     columnSpacing: 10,
-    columnWidth: [38, 10, 10, 12]
+    columnWidth: [38, 10, 10, 12, 12]
 });
 
 // Initial data
@@ -32,9 +33,9 @@ let data: ResourceUsage[] = [];
 
 // Function to update the table with new data
 function updateTable(): void {
-    let tableData: (string | number)[][] = data.map(item => [item.name, item.max, item.remaining, item.used]);
+    let tableData: (string | number)[][] = data.map(item => [item.name, item.max, item.remaining, item.used, item.percent]);
     table.setData({
-        headers: ['Name', 'Max', 'Remaining', 'Used'],
+        headers: ['Name', 'Max', 'Remaining', 'Used', '% Remaining'],
         data: tableData
     });
     screen.render();
@@ -59,13 +60,15 @@ async function updateData() {
     for (let limit in result) {
         let max = Number(result[limit].Max);
         let remaining = Number(result[limit].Remaining)
-        let used = max - remaining;
         if (max != remaining) {
+            let used = max - remaining;
+            let percent = ((remaining / max) * 100).toFixed(0);
             data.push({
                 name: limit as string,
                 max: max,
                 remaining: remaining,
-                used: used
+                used: used,
+                percent: percent
             });
         }
     }
