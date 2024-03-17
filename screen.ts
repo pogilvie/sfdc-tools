@@ -5,6 +5,7 @@ import { getLimits } from './rest';
 // Initialize the screen
 const screen: blessed.Widgets.Screen = blessed.screen();
 const grid: contrib.grid = new contrib.grid({ rows: 12, cols: 12, screen: screen });
+const lastRemaining: Map<string, number> = new Map();
 
 // Define a type for the data structure
 interface ResourceUsage {
@@ -13,6 +14,7 @@ interface ResourceUsage {
     remaining: number;
     used: number;
     percent: string
+    delta: string
 }
 
 // Create a table
@@ -20,12 +22,12 @@ let table = grid.set(0, 0, 12, 12, contrib.table, {
     keys: true,
     fg: 'white',
     interactive: false,
-    label: 'Resource Usage',
+    label: 'Org Limit Usage',
     width: '100%',
     height: '100%',
     border: { type: 'line', fg: 'cyan' },
     columnSpacing: 10,
-    columnWidth: [38, 10, 10, 12, 12]
+    columnWidth: [38, 10, 10, 12, 12, 10]
 });
 
 // Initial data
@@ -33,9 +35,9 @@ let data: ResourceUsage[] = [];
 
 // Function to update the table with new data
 function updateTable(): void {
-    let tableData: (string | number)[][] = data.map(item => [item.name, item.max, item.remaining, item.used, item.percent]);
+    let tableData: (string | number)[][] = data.map(item => [item.name, item.max, item.remaining, item.used, item.percent, item.delta]);
     table.setData({
-        headers: ['Name', 'Max', 'Remaining', 'Used', '% Remaining'],
+        headers: ['Name', 'Max', 'Remaining', 'Used', '% Remaining', 'Delta'],
         data: tableData
     });
     screen.render();
@@ -43,16 +45,6 @@ function updateTable(): void {
 
 // Initial table update
 await updateData();
-
-// Mock function to simulate data updates
-function simulateDataUpdates(): void {
-    data.forEach(item => {
-        item.used = Math.floor(Math.random() * item.max * 0.01); // Simulating random usage
-        item.remaining = item.max - item.used;
-    });
-
-    updateTable();
-}
 
 async function updateData() {
     const result = await getLimits();
@@ -63,13 +55,21 @@ async function updateData() {
         if (max != remaining) {
             let used = max - remaining;
             let percent = ((remaining / max) * 100).toFixed(0);
+            let stat = limit as string;
+            let last = lastRemaining.get(stat);
+            let delta = 0;
+            if (last) {
+                delta = last - remaining;
+            }
             data.push({
-                name: limit as string,
+                name: stat,
                 max: max,
                 remaining: remaining,
                 used: used,
-                percent: percent
+                percent: percent,
+                delta: delta ? delta.toString() : ''
             });
+            lastRemaining.set(stat, remaining);
         }
     }
     updateTable();
