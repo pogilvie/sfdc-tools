@@ -1,6 +1,7 @@
 import { options, debug } from './options'
 import { getLimits } from './rest';
 import { printTable } from './print-table';
+import { displayScreen } from './display-screen';
 
 debug(options);
 
@@ -10,9 +11,7 @@ if (!options.pollingTime) {
     printTable(result);
     process.exit(0);
 } else {
-    setInterval(pollLimits, options.pollingTime * 1000);
+    displayScreen(options);
 }
 
-async function pollLimits() {
-    console.log('Hello, World!');
-}
+
