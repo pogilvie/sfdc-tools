@@ -34,7 +34,7 @@ let data: ResourceUsage[] = [];
 function updateTable(): void {
     let tableData: (string | number)[][] = data.map(item => [item.name, item.max, item.remaining, item.used]);
     table.setData({
-        headers: ['Name', 'Max', 'Remaining', 'Used', 'Percent Used'],
+        headers: ['Name', 'Max', 'Remaining', 'Used'],
         data: tableData
     });
     screen.render();
