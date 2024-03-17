@@ -1,5 +1,6 @@
 import blessed from 'blessed';
 import contrib from 'blessed-contrib';
+import { getLimits } from './rest';
 
 // Initialize the screen
 const screen: blessed.Widgets.Screen = blessed.screen();
@@ -9,8 +10,8 @@ const grid: contrib.grid = new contrib.grid({ rows: 12, cols: 12, screen: screen
 interface ResourceUsage {
     name: string;
     max: number;
-    used: number;
     remaining: number;
+    used: number;
 }
 
 // Create a table
@@ -23,29 +24,24 @@ let table = grid.set(0, 0, 12, 12, contrib.table, {
     height: '100%',
     border: { type: 'line', fg: 'cyan' },
     columnSpacing: 10,
-    columnWidth: [24, 10, 10, 12]
+    columnWidth: [38, 10, 10, 12]
 });
 
 // Initial data
-let data: ResourceUsage[] = [
-    { name: "DailyApiRequests", max: 24910000, used: 19, remaining: 24909981 },
-    { name: "DataStorageMB", max: 200, used: 127, remaining: 73 },
-    { name: "PlatformEvents", max: 28500000, used: 2891258, remaining: 25608742 },
-    { name: "PermissionSets", max: 1500, used: 339, remaining: 1161 }
-];
+let data: ResourceUsage[] = [];
 
 // Function to update the table with new data
 function updateTable(): void {
-    let tableData: (string | number)[][] = data.map(item => [item.name, item.max, item.used, item.remaining]);
+    let tableData: (string | number)[][] = data.map(item => [item.name, item.max, item.remaining, item.used]);
     table.setData({
-        headers: ['Name', 'Max', 'Used', 'Remaining'],
+        headers: ['Name', 'Max', 'Remaining', 'Used', 'Percent Used'],
         data: tableData
     });
     screen.render();
 }
 
 // Initial table update
-updateTable();
+await updateData();
 
 // Mock function to simulate data updates
 function simulateDataUpdates(): void {
@@ -57,8 +53,27 @@ function simulateDataUpdates(): void {
     updateTable();
 }
 
+async function updateData() {
+    const result = await getLimits();
+    data = [];
+    for (let limit in result) {
+        let max = Number(result[limit].Max);
+        let remaining = Number(result[limit].Remaining)
+        let used = max - remaining;
+        if (max != remaining) {
+            data.push({
+                name: limit as string,
+                max: max,
+                remaining: remaining,
+                used: used
+            });
+        }
+    }
+    updateTable();
+}
+
 // Set an interval to simulate data updates every 5 seconds
-setInterval(simulateDataUpdates, 5000);
+setInterval(updateData, 5000);
 
 // Quit on Escape, q, or Control-C
 screen.key(['escape', 'q', 'C-c'], () => {
