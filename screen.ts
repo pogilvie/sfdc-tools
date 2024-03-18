@@ -67,7 +67,7 @@ async function updateData() {
                 remaining: remaining,
                 used: used,
                 percent: percent,
-                delta: delta ? delta.toString() : ''
+                delta: delta > 0 ? delta.toString() : ''
             });
             lastRemaining.set(stat, remaining);
         }

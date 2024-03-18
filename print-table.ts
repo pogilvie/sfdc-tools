@@ -22,7 +22,7 @@ export function printTable(result: any) {
             let usedFormatted = formatNumber(used);
             let percentRemaining = Number(remaining) / Number(max);
             let percentRemainingFormatted = (percentRemaining * 100).toFixed(0)
-            if (percentRemaining < 0.3) {
+            if (percentRemaining < 0.4) {
                 remainingFormated = chalk.red(remainingFormated);
                 usedFormatted = chalk.red(usedFormatted);
                 percentRemainingFormatted = chalk.red(percentRemainingFormatted);
